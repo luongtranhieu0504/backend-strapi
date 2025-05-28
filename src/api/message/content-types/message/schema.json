@@ -1,0 +1,70 @@
+{
+  "kind": "collectionType",
+  "collectionName": "messages",
+  "info": {
+    "singularName": "message",
+    "pluralName": "messages",
+    "displayName": "Message"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "sender": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "sentMessages"
+    },
+    "receiver": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "receivedMessages"
+    },
+    "conversation": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::conversation.conversation",
+      "inversedBy": "messages"
+    },
+    "content": {
+      "type": "text"
+    },
+    "type": {
+      "type": "enumeration",
+      "enum": [
+        "text",
+        "image",
+        "video",
+        "audio",
+        "file"
+      ]
+    },
+    "timestamp": {
+      "type": "datetime"
+    },
+    "isRead": {
+      "type": "boolean",
+      "default": false
+    },
+    "imageUrl": {
+      "type": "string"
+    },
+    "videoUrl": {
+      "type": "string"
+    },
+    "fileUrl": {
+      "type": "string"
+    },
+    "reactions": {
+      "type": "json"
+    },
+    "schedule": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::schedule.schedule"
+    }
+  }
+}

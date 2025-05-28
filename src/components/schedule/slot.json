@@ -1,0 +1,22 @@
+{
+  "collectionName": "components_schedule_slot",
+  "info": {
+    "displayName": "Slot",
+    "icon": "calendar",
+    "description": "Time slot in a schedule"
+  },
+  "attributes": {
+    "weekday": {
+      "type": "integer",
+      "required": true
+    },
+    "start_time": {
+      "type": "time",
+      "required": true
+    },
+    "end_time": {
+      "type": "time",
+      "required": true
+    }
+  }
+}

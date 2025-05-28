@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "conversations",
+  "info": {
+    "singularName": "conversation",
+    "pluralName": "conversations",
+    "displayName": "Conversation"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "student": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::student.student",
+      "inversedBy": "conversations"
+    },
+    "tutor": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::tutor.tutor",
+      "inversedBy": "conversations"
+    },
+    "messages": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::message.message",
+      "mappedBy": "conversation"
+    },
+    "lastMessage": {
+      "type": "string"
+    },
+    "lastTimestamp": {
+      "type": "datetime"
+    }
+  }
+}

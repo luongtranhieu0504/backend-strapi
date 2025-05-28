@@ -1,0 +1,20 @@
+{
+  "collectionName": "components_award_certifications",
+  "info": {
+    "displayName": "Certification",
+    "icon": "crown"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "file": {
+      "type": "string",
+      "multiple": false
+    },
+    "issuedAt": {
+      "type": "date"
+    }
+  }
+}

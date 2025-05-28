@@ -1,0 +1,46 @@
+{
+  "kind": "collectionType",
+  "collectionName": "schedules",
+  "info": {
+    "singularName": "schedule",
+    "pluralName": "schedules",
+    "displayName": "Schedule"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "tutor": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::tutor.tutor",
+      "inversedBy": "schedules"
+    },
+    "student": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::student.student",
+      "inversedBy": "learning_history"
+    },
+    "topic": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "start_date": {
+      "type": "datetime"
+    },
+    "slots": {
+      "type": "component",
+      "repeatable": true,
+      "component": "schedule.slot"
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["pending", "cancelled", "completed"],
+      "default": "pending"
+    }
+  } 
+}
