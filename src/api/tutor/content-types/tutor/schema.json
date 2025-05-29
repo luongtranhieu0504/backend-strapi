@@ -39,12 +39,10 @@
       "mappedBy": "tutor"
     },
     "subjects": {
-      "type": "string",
-      "repeatable": true
+      "type": "json"
     },
     "degrees": {
-      "type": "string",
-      "repeatable": true
+      "type": "json"
     },
     "experienceYears": {
       "type": "integer"
