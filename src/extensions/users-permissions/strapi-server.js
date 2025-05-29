@@ -43,8 +43,9 @@ module.exports = (plugin) => {
       role: role,
     });
 
-    // Nếu role = 5 → student, role = 6 → tutor
+    let type_role = '';
     if (role == 3) {
+      type_role = 'Student';
       await strapi.service('api::student.student').create({
         data: {
           email: user.email,
@@ -52,6 +53,7 @@ module.exports = (plugin) => {
         },
       });
     } else if (role == 4) {
+      type_role = 'Tutor';
       await strapi.service('api::tutor.tutor').create({
         data: {
           email: user.email,
@@ -60,7 +62,15 @@ module.exports = (plugin) => {
       });
     }
 
-    const sanitizedUser = await sanitizeUser(user, ctx);
+    await strapi.query('plugin::users-permissions.user').update({
+      where: { id: user.id },
+      data: { type_role },
+    });
+
+    const sanitizedUser = await sanitizeUser(
+      { ...user, type_role },
+      ctx
+    );
     const jwt = getService('jwt').issue(_.pick(user, ['id']));
 
     return ctx.send({
