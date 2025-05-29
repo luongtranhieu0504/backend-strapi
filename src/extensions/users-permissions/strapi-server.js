@@ -48,14 +48,14 @@ module.exports = (plugin) => {
       await strapi.service('api::student.student').create({
         data: {
           email: user.email,
-          users_permissions_user: user.id,
+          user: user.id,
         },
       });
     } else if (role == 4) {
       await strapi.service('api::tutor.tutor').create({
         data: {
           email: user.email,
-          users_permissions_user: user.id,
+          user: user.id,
         },
       });
     }
