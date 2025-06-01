@@ -33,11 +33,11 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
         updatedAt: tutor.updatedAt,
         publishedAt: tutor.publishedAt,
 
-        schedules: tutor.schedules || [],
-        reviews: tutor.reviews || [],
-        conversations: tutor.conversations || [],
-        availability: tutor.availability || [],
-        certifications: tutor.certifications || [],
+        schedules: Array.isArray(tutor.schedules) ? tutor.schedules : [],
+        reviews: Array.isArray(tutor.reviews) ? tutor.reviews : [],
+        conversations: Array.isArray(tutor.conversations) ? tutor.conversations : [],
+        availability: Array.isArray(tutor.availability) ? tutor.availability : [],
+        certifications: Array.isArray(tutor.certifications) ? tutor.certifications : [],
 
         user: user
           ? {
@@ -67,5 +67,19 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
       data: tutors.map(flattenTutor),
       message: 'OK',
     };
+  },
+  async me(ctx) {
+    const user = ctx.state.user;
+    if (!user) {
+      return ctx.unauthorized('You must be logged in');
+    }
+    const tutor = await strapi.db.query('api::tutor.tutor').findOne({
+      where: { user: user.id },
+      populate: ['user'],
+    });
+    if (!tutor) {
+      return ctx.notFound('Tutor not found');
+    }
+    return tutor;
   },
 }));

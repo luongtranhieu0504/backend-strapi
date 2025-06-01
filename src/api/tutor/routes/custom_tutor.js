@@ -8,5 +8,13 @@ module.exports = {
         policies: [],
       },
     },
+    {
+      method: 'GET',
+      path: '/tutors/me',
+      handler: 'tutor.me',
+      config: {
+        policies: [],
+      },
+    },
   ],
 };
