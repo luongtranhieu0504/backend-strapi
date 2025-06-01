@@ -27,7 +27,9 @@ module.exports = createCoreController('api::review.review', ({ strapi }) => ({
       rating: review.rating,
       comment: review.comment,
       date: review.date,
-      student: review.student ? { name: review.student.name } : null,
+      student: review.student.id,
+      tutor: parseInt(tutorId, 10),
+      studentName: review.student_name,
     }));
 
     ctx.body = {

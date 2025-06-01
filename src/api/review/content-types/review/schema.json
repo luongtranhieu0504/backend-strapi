@@ -23,6 +23,9 @@
       "target": "api::student.student",
       "inversedBy": "reviews"
     },
+    "student_name": {
+      "type": "string"
+    },
     "rating": {
       "type": "integer",
       "min": 1,
