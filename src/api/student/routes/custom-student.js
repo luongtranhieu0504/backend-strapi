@@ -8,5 +8,13 @@ module.exports = {
         policies: [],
       },
     },
+    {
+      method: 'PUT',
+      path: '/students/:id/update-favorites',
+      handler: 'student.updateFavorites',
+      config: {
+        policies: [],
+      },
+    },
   ],
 };
