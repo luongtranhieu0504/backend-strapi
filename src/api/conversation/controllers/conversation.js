@@ -43,29 +43,37 @@ module.exports = createCoreController('api::conversation.conversation', ({ strap
 
     ctx.body = { status: 'success', data: conversation, message: 'Created' };
   },
-  async listByUser(ctx) {
-    const { studentId, tutorId } = ctx.query;
+   async listByUser(ctx) {
+    let { studentId, tutorId } = ctx.query;
 
     if (!studentId && !tutorId) {
       ctx.status = 400;
       ctx.body = { status: 'error', data: null, message: 'Missing studentId or tutorId' };
       return;
     }
+    // Ép kiểu về số nếu có
+    if (studentId) studentId = parseInt(studentId, 10);
+    if (tutorId) tutorId = parseInt(tutorId, 10);
 
     const filters = {};
     if (studentId) filters.student = studentId;
     if (tutorId) filters.tutor = tutorId;
 
-    const conversations = await strapi.entityService.findMany('api::conversation.conversation', {
-      filters,
-      populate: { messages: true, student: true, tutor: true },
-      sort: ['updatedAt:desc'],
-    });
+    try {
+      const conversations = await strapi.entityService.findMany('api::conversation.conversation', {
+        filters,
+        populate: { messages: true, student: true, tutor: true },
+        sort: ['updatedAt:desc'],
+      });
 
-    ctx.body = {
-      status: 'success',
-      data: conversations,
-      message: 'OK',
-    };
+      ctx.body = {
+        status: 'success',
+        data: conversations,
+        message: 'OK',
+      };
+    } catch (error) {
+      ctx.status = 500;
+      ctx.body = { status: 'error', data: null, message: error.message };
+    }
   },
 }));
