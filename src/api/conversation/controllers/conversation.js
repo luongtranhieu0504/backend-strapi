@@ -43,4 +43,29 @@ module.exports = createCoreController('api::conversation.conversation', ({ strap
 
     ctx.body = { status: 'success', data: conversation, message: 'Created' };
   },
+  async listByUser(ctx) {
+    const { studentId, tutorId } = ctx.query;
+
+    if (!studentId && !tutorId) {
+      ctx.status = 400;
+      ctx.body = { status: 'error', data: null, message: 'Missing studentId or tutorId' };
+      return;
+    }
+
+    const filters = {};
+    if (studentId) filters.student = studentId;
+    if (tutorId) filters.tutor = tutorId;
+
+    const conversations = await strapi.entityService.findMany('api::conversation.conversation', {
+      filters,
+      populate: { messages: true, student: true, tutor: true },
+      sort: ['updatedAt:desc'],
+    });
+
+    ctx.body = {
+      status: 'success',
+      data: conversations,
+      message: 'OK',
+    };
+  },
 }));

@@ -8,5 +8,13 @@ module.exports = {
         policies: [],
       },
     },
+    {
+      method: 'GET',
+      path: '/conversations/list',
+      handler: 'conversation.listByUser',
+      config: {
+        policies: [],
+      },
+    },
   ],
 };

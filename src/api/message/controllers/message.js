@@ -38,12 +38,14 @@ module.exports = createCoreController('api::message.message', ({ strapi }) => ({
         id: msg.sender.id,
         username: msg.sender.username,
         email: msg.sender.email,
+        photoUrl: msg.sender.photoUrl,
         // thêm các trường khác nếu cần
       } : null,
       receiver: msg.receiver ? {
         id: msg.receiver.id,
         username: msg.receiver.username,
         email: msg.receiver.email,
+        photoUrl: msg.receiver.photoUrl,
         // thêm các trường khác nếu cần
       } : null,
     }));
