@@ -43,37 +43,67 @@ module.exports = createCoreController('api::conversation.conversation', ({ strap
 
     ctx.body = { status: 'success', data: conversation, message: 'Created' };
   },
-   async listByUser(ctx) {
-    let { studentId, tutorId } = ctx.query;
+  async listByUser(ctx) {
+    const { studentId, tutorId } = ctx.query;
 
     if (!studentId && !tutorId) {
       ctx.status = 400;
       ctx.body = { status: 'error', data: null, message: 'Missing studentId or tutorId' };
       return;
     }
-    // Ép kiểu về số nếu có
-    if (studentId) studentId = parseInt(studentId, 10);
-    if (tutorId) tutorId = parseInt(tutorId, 10);
 
+    // Ép kiểu về số
     const filters = {};
-    if (studentId) filters.student = studentId;
-    if (tutorId) filters.tutor = tutorId;
+    if (studentId) filters.student = parseInt(studentId, 10);
+    if (tutorId) filters.tutor = parseInt(tutorId, 10);
 
-    try {
-      const conversations = await strapi.entityService.findMany('api::conversation.conversation', {
-        filters,
-        populate: { messages: true, student: true, tutor: true },
-        sort: ['updatedAt:desc'],
-      });
+    // Lấy conversations, populate cả student và tutor
+    const conversations = await strapi.entityService.findMany('api::conversation.conversation', {
+      filters,
+      populate: {
+        student: { populate: ['user'] },
+        tutor: { populate: ['user'] },
+      },
+      sort: ['updatedAt:desc'],
+    });
 
-      ctx.body = {
-        status: 'success',
-        data: conversations,
-        message: 'OK',
-      };
-    } catch (error) {
-      ctx.status = 500;
-      ctx.body = { status: 'error', data: null, message: error.message };
+    // Trả về info của "other user"
+    const result = conversations.map(conv => {
+    let otherUser = null;
+    if (studentId) {
+      // Nếu là student, other user là tutor.user
+      otherUser = conv.tutor && conv.tutor.user
+        ? {
+            id: conv.tutor.user.id,
+            name: conv.tutor.user.name,
+            email: conv.tutor.user.email,
+            photoUrl: conv.tutor.user.photoUrl,
+            // thêm các trường khác nếu cần
+          }
+        : null;
+    } else if (tutorId) {
+      // Nếu là tutor, other user là student.user
+      otherUser = conv.student && conv.student.user
+        ? {
+            id: conv.student.user.id,
+            name: conv.student.user.name,
+            email: conv.student.user.email,
+            photoUrl: conv.student.user.photoUrl,
+            // thêm các trường khác nếu cần
+          }
+        : null;
     }
+    return {
+      id: conv.id,
+      lastMessage: conv.lastMessage,
+      lastTimestamp: conv.lastTimestamp,
+      otherUser,
+    };
+  });
+    ctx.body = {
+      status: 'success',
+      data: result,
+      message: 'OK',
+    };
   },
 }));

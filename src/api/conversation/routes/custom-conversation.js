@@ -10,7 +10,7 @@ module.exports = {
     },
     {
       method: 'GET',
-      path: '/conversations/list',
+      path: '/my-conversations',
       handler: 'conversation.listByUser',
       config: {
         policies: [],
