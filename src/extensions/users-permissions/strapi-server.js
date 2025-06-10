@@ -4,6 +4,8 @@ const _ = require('lodash');
 const { ApplicationError } = require('@strapi/utils').errors;
 const { sanitize } = require('@strapi/utils');
 const { getService } = require('@strapi/plugin-users-permissions/server/utils');
+const customUserController = require('./controllers/user');
+const customUserRoutes = require('./routes/custom-user');
 
 const sanitizeUser = (user, ctx) =>
   sanitize.contentAPI.output(user, strapi.getModel('plugin::users-permissions.user'), { auth: ctx.state.auth });
@@ -78,5 +80,10 @@ module.exports = (plugin) => {
       user: sanitizedUser,
     });
   };
+  plugin.controllers.user = {
+    ...plugin.controllers.user,
+    ...customUserController,
+  };
+  plugin.routes['content-api'].routes.push(...customUserRoutes.routes);
   return plugin;
 };
