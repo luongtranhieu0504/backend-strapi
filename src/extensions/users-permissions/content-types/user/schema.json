@@ -65,6 +65,9 @@
       "inversedBy": "users",
       "configurable": false
     },
+    "fcmToken": {
+      "type": "string"
+    },
     "name": {
       "type": "string"
     },
