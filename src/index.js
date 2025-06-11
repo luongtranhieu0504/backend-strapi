@@ -50,11 +50,13 @@ module.exports = {
 
     io.on('connection', (socket) => {
       socket.on('join', (conversationId) => {
+        console.log(`User ${socket.id} joined room conversation_${conversationId}`);
         socket.join(`conversation_${conversationId}`);
       });
 
       socket.on('message', async (data) => {
         // data: { conversationId, message }
+        console.log(`Emit message to room conversation_${data.conversationId}:`, data.message);
         io.to(`conversation_${data.conversationId}`).emit('message', data.message);
 
         // Gửi notify qua FCM cho receiver nếu cần
@@ -86,6 +88,7 @@ module.exports = {
 
       socket.on('disconnect', () => {
         // handle disconnect nếu cần
+        console.log(`User ${socket.id} disconnected`);
       });
     });
 
