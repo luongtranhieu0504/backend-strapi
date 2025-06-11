@@ -49,6 +49,7 @@ module.exports = {
     strapi.io = io;
 
     io.on('connection', (socket) => {
+      console.log(`User ${socket.id} connected`);
       socket.on('join', (conversationId) => {
         console.log(`User ${socket.id} joined room conversation_${conversationId}`);
         socket.join(`conversation_${conversationId}`);
@@ -57,11 +58,27 @@ module.exports = {
       socket.on('message', async (data) => {
         // data: { conversationId, message }
         console.log(`Emit message to room conversation_${data.conversationId}:`, data.message);
-        io.to(`conversation_${data.conversationId}`).emit('message', data.message);
+
+        // Lưu message vào DB (nếu cần)
+        // const savedMessage = await strapi.entityService.create('api::message.message', {
+        //   data: data.message
+        // });
+
+        // Lấy lại message từ DB, populate sender/receiver
+        const msgId = data.message.id;
+        let populatedMessage = data.message;
+
+        if (msgId) {
+          populatedMessage = await strapi.entityService.findOne('api::message.message', msgId, {
+            populate: { sender: true, receiver: true }
+          });
+        }
+
+        io.to(`conversation_${data.conversationId}`).emit('message', populatedMessage);
 
         // Gửi notify qua FCM cho receiver nếu cần
         try {
-          const message = data.message;
+          const message = populatedMessage;
           const receiverId = message.receiver?.id || message.receiver;
           // Lấy user receiver từ DB
           const receiver = await strapi.db.query('plugin::users-permissions.user').findOne({
@@ -85,7 +102,6 @@ module.exports = {
           strapi.log.error('FCM notify error:', err);
         }
       });
-
       socket.on('disconnect', () => {
         // handle disconnect nếu cần
         console.log(`User ${socket.id} disconnected`);
