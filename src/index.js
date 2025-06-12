@@ -58,49 +58,19 @@ module.exports = {
       socket.on('message', async (data) => {
         // data: { conversationId, message }
         console.log(`Emit message to room conversation_${data.conversationId}:`, data.message);
-
-        let populatedMessage;
-
-        // Nếu là tin nhắn mới (id = 0 hoặc không có id), lưu vào DB trước
-        if (!data.message.id || data.message.id === 0) {
-          const savedMessage = await strapi.entityService.create('api::message.message', {
-            data: {
-              sender: data.message.sender.id,
-              receiver: data.message.receiver.id,
-              conversation: data.conversationId,
-              content: data.message.content,
-              type: data.message.type,
-              timestamp: data.message.timestamp,
-              isRead: data.message.isRead,
-              imageUrl: data.message.imageUrl,
-              videoUrl: data.message.videoUrl,
-              fileUrl: data.message.fileUrl,
-              reactions: data.message.reactions,
-              schedule: data.message.schedule,
-            }
-          });
-          populatedMessage = await strapi.entityService.findOne('api::message.message', savedMessage.id, {
-            populate: { sender: true, receiver: true }
-          });
-        } else {
-          // Nếu đã có id, lấy lại từ DB
-          populatedMessage = await strapi.entityService.findOne('api::message.message', data.message.id, {
-            populate: { sender: true, receiver: true }
-          });
-        }
-
-        io.to(`conversation_${data.conversationId}`).emit('message', populatedMessage);
+        io.to(`conversation_${data.conversationId}`).emit('message', data.message);
 
         // Gửi notify qua FCM cho receiver nếu cần
         try {
-          const message = populatedMessage;
+          const message = data.message;
           const receiverId = message.receiver?.id || message.receiver;
-          // Lấy user receiver từ DB để lấy fcmToken
+          // Lấy user receiver từ DB
           const receiver = await strapi.db.query('plugin::users-permissions.user').findOne({
             where: { id: receiverId },
             select: ['fcmToken', 'name'],
           });
 
+          // Nếu có fcmToken thì gửi notify
           if (receiver && receiver.fcmToken) {
             await sendFCMNotification(
               receiver.fcmToken,
@@ -116,6 +86,7 @@ module.exports = {
           strapi.log.error('FCM notify error:', err);
         }
       });
+
       socket.on('disconnect', () => {
         // handle disconnect nếu cần
         console.log(`User ${socket.id} disconnected`);

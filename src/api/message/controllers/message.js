@@ -46,6 +46,7 @@ module.exports = createCoreController('api::message.message', ({ strapi }) => ({
         username: msg.receiver.username,
         email: msg.receiver.email,
         photoUrl: msg.receiver.photoUrl,
+        fcmToken: msg.receiver.fcmToken,
         // thêm các trường khác nếu cần
       } : null,
     }));
