@@ -78,6 +78,7 @@ module.exports = createCoreController('api::conversation.conversation', ({ strap
             name: conv.tutor.user.name,
             email: conv.tutor.user.email,
             photoUrl: conv.tutor.user.photoUrl,
+            fcmToken: conv.tutor.user.fcmToken
             // thêm các trường khác nếu cần
           }
         : null;
@@ -89,6 +90,7 @@ module.exports = createCoreController('api::conversation.conversation', ({ strap
             name: conv.student.user.name,
             email: conv.student.user.email,
             photoUrl: conv.student.user.photoUrl,
+            fcmToken: conv.student.user.fcmToken
             // thêm các trường khác nếu cần
           }
         : null;

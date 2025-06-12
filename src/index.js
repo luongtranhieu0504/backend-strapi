@@ -63,13 +63,14 @@ module.exports = {
         // Gửi notify qua FCM cho receiver nếu cần
         try {
           const message = data.message;
-          const receiverId = message.receiver?.id || message.receiver;
+          const receiverId = message.receiver.id;
+          console.log('Receiver ID:', receiverId);
           // Lấy user receiver từ DB
           const receiver = await strapi.db.query('plugin::users-permissions.user').findOne({
             where: { id: receiverId },
             select: ['fcmToken', 'name'],
           });
-
+          console.log('Receiver:', receiver);
           // Nếu có fcmToken thì gửi notify
           if (receiver && receiver.fcmToken) {
             await sendFCMNotification(
