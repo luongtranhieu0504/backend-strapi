@@ -7,9 +7,12 @@ const axios = require('axios');
 async function sendFCMNotification(token, title, body, data = {}) {
   try {
     await axios.post('https://us-central1-tutorconnect-1afc7.cloudfunctions.net/sendChatNotification', {
-      to: token,
-      notification: { title, body },
-      data,
+      fcmToken: token, // truyền trực tiếp fcmToken
+      senderId: data.senderId,     // id của user gửi
+      conversationId: data.conversationId,
+      content: body,
+      senderName: title,
+      type: data.type || 'text'
     }, {
       headers: {
         'Content-Type': 'application/json',
@@ -56,37 +59,49 @@ module.exports = {
       });
 
       socket.on('message', async (data) => {
-        // data: { conversationId, message }
-        console.log(`Emit message to room conversation_${data.conversationId}:`, data.message);
-        io.to(`conversation_${data.conversationId}`).emit('message', data.message);
+  if (!data?.conversationId || !data?.message) {
+    console.error('⚠️ Invalid message payload:', data);
+    return;
+  }
 
-        // Gửi notify qua FCM cho receiver nếu cần
-        try {
-          const message = data.message;
-          const receiverId = message.receiver.id;
-          console.log('Receiver ID:', receiverId);
-          // Lấy user receiver từ DB
-          const receiver = await strapi.db.query('plugin::users-permissions.user').findOne({
-            where: { id: receiverId },
-            select: ['fcmToken', 'name'],
-          });
-          console.log('Receiver:', receiver);
-          // Nếu có fcmToken thì gửi notify
-          if (receiver && receiver.fcmToken) {
-            await sendFCMNotification(
-              receiver.fcmToken,
-              `Tin nhắn mới từ ${message.sender?.name || 'ai đó'}`,
-              message.content || 'Bạn có tin nhắn mới',
-              {
-                conversationId: data.conversationId,
-                senderId: message.sender?.id,
-              }
-            );
-          }
-        } catch (err) {
-          strapi.log.error('FCM notify error:', err);
+  const message = data.message;
+  const room = `conversation_${data.conversationId}`;
+  console.log(`Emit message to room ${room}:`, message);
+  io.to(room).emit('message', message);
+
+  // FCM logic
+  try {
+    const receiverId = message.receiver?.id;
+    if (!receiverId) {
+      console.error('⚠️ No receiver ID found in message:', message);
+      return;
+    }
+
+    const receiver = await strapi.db.query('plugin::users-permissions.user').findOne({
+      where: { id: receiverId },
+      select: ['fcmToken', 'name'],
+    });
+
+    console.log('Receiver fetched from DB:', receiver);
+
+    if (receiver?.fcmToken) {
+      await sendFCMNotification(
+        receiver.fcmToken,
+        message.sender?.name || 'Tin nhắn mới',
+        message.content || 'Bạn có tin nhắn mới',
+        {
+          senderId: String(message.sender?.id),
+          conversationId: String(data.conversationId),
+          type: message.type || 'text',
         }
-      });
+      );
+    } else {
+      console.warn('⚠️ Receiver has no fcmToken, notification skipped');
+    }
+  } catch (err) {
+    strapi.log.error('FCM notify error:', err.message || err);
+  }
+});
 
       socket.on('disconnect', () => {
         // handle disconnect nếu cần
