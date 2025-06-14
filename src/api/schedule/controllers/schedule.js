@@ -3,11 +3,12 @@
 const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::schedule.schedule', ({ strapi }) => ({
-  async flatList(ctx) {
-    const { tutorId, studentId, status } = ctx.query;
+   async flatList(ctx) {
+    const { tutorId, studentId, date, status } = ctx.query;
     const filters = {};
     if (tutorId) filters.tutor = tutorId;
     if (studentId) filters.student = studentId;
+    if (date) filters.start_date = date; // sửa lại thành start_date
     if (status) filters.status = status;
 
     const schedules = await strapi.entityService.findMany('api::schedule.schedule', {
@@ -15,9 +16,9 @@ module.exports = createCoreController('api::schedule.schedule', ({ strapi }) => 
       populate: {
         student: { populate: { user: { fields: ['id', 'name'] } } },
         tutor: { populate: { user: { fields: ['id', 'name'] } } },
-        slot: true,
+        slots: true, // sửa slot thành slots cho đúng schema
       },
-      sort: ['date:asc', 'time:asc'],
+      sort: ['start_date:asc'],
     });
 
     const flatSchedules = schedules.map((schedule) => ({
@@ -28,7 +29,7 @@ module.exports = createCoreController('api::schedule.schedule', ({ strapi }) => 
       student_name: schedule.student?.user?.name,
       tutor: schedule.tutor?.id,
       tutor_name: schedule.tutor?.user?.name,
-      slot: schedule.slot,
+      slots: schedule.slots,
     }));
 
     ctx.body = {
