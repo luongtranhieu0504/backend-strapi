@@ -4,11 +4,10 @@ const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::schedule.schedule', ({ strapi }) => ({
   async flatList(ctx) {
-    const { tutorId, studentId, date, status } = ctx.query;
+    const { tutorId, studentId, status } = ctx.query;
     const filters = {};
     if (tutorId) filters.tutor = tutorId;
     if (studentId) filters.student = studentId;
-    if (date) filters.date = date;
     if (status) filters.status = status;
 
     const schedules = await strapi.entityService.findMany('api::schedule.schedule', {
