@@ -39,7 +39,7 @@
     },
     "status": {
       "type": "enumeration",
-      "enum": ["pending", "cancelled", "completed"],
+      "enum": ["pending", "cancelled", "approved", "completed"],
       "default": "pending"
     }
   } 
