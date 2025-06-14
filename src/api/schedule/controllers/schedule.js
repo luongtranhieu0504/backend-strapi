@@ -23,8 +23,7 @@ module.exports = createCoreController('api::schedule.schedule', ({ strapi }) => 
 
     const flatSchedules = schedules.map((schedule) => ({
       id: schedule.id,
-      date: schedule.date,
-      time: schedule.time,
+      start_date: schedule.start_date,
       status: schedule.status,
       student: schedule.student?.id,
       student_name: schedule.student?.user?.name,
