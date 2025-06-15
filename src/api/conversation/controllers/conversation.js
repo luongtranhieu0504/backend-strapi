@@ -74,7 +74,7 @@ module.exports = createCoreController('api::conversation.conversation', ({ strap
       // Nếu là student, other user là tutor.user
       otherUser = conv.tutor && conv.tutor.user
         ? {
-            id: conv.tutor.user.id,
+            id: conv.tutor.id,
             name: conv.tutor.user.name,
             email: conv.tutor.user.email,
             photoUrl: conv.tutor.user.photoUrl,
@@ -87,7 +87,7 @@ module.exports = createCoreController('api::conversation.conversation', ({ strap
       // Nếu là tutor, other user là student.user
       otherUser = conv.student && conv.student.user
         ? {
-            id: conv.student.user.id,
+            id: conv.student.id,
             name: conv.student.user.name,
             email: conv.student.user.email,
             photoUrl: conv.student.user.photoUrl,
