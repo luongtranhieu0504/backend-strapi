@@ -60,52 +60,50 @@ module.exports = {
       });
 
       socket.on('message', async (data) => {
-        if (!data?.conversationId || !data?.message) {
-          console.error('⚠️ Invalid message payload:', data);
-          return;
-        }
+  if (!data?.conversationId || !data?.message) {
+    console.error('⚠️ Invalid message payload:', data);
+    return;
+  }
 
-        const message = data.message;
-        const room = `conversation_${data.conversationId}`;
-        console.log(`Emit message to room ${room}:`, message);
-        io.to(room).emit('message', message);
+  const message = data.message;
+  const room = `conversation_${data.conversationId}`;
+  console.log(`Emit message to room ${room}:`, message);
+  io.to(room).emit('message', message);
 
-        // FCM logic
-        try {
-          const receiverId = message.receiver?.id;
-          if (!receiverId) {
-            console.error('⚠️ No receiver ID found in message:', message);
-            return;
-          }
+  // FCM logic
+  try {
+    const receiverId = message.receiver?.id;
+    if (!receiverId) {
+      console.error('⚠️ No receiver ID found in message:', message);
+      return;
+    }
 
-          const receiver = await strapi.db.query('plugin::users-permissions.user').findOne({
-            where: { id: receiverId },
-            select: ['fcmToken', 'name'],
-          });
+    // Lấy các biến cần thiết từ message
+    const senderId = message.sender?.id;
+    const senderName = message.sender?.name;
+    const messageContent = message.content;
+    const conversationId = data.conversationId;
+    const messageId = message.id;
+    const conversationObj = message.conversation;
 
-          console.log('Receiver fetched from DB:', receiver);
-
-          if (receiver?.fcmToken) {
-            await strapi.service('api::notification.notification').send({
-              type: 'chat',
-              title: senderName,
-              content: messageContent,
-              fromUserId: senderId,
-              toUserId: receiverId,
-              entityId: conversationId,
-              extraData: {
-                conversation: JSON.stringify(conversationObj), 
-                senderId: String(senderId),
-                messageId: String(messageId),
-              }
-            });
-          } else {
-            console.warn('⚠️ Receiver has no fcmToken, notification skipped');
-          }
-        } catch (err) {
-          strapi.log.error('FCM notify error:', err.message || err);
-        }
-      });
+    // Gọi service notification để gửi notify (không cần lấy fcmToken ở đây)
+    await strapi.service('api::notification.notification').send({
+      type: 'chat',
+      title: senderName,
+      content: messageContent,
+      fromUserId: senderId,
+      toUserId: receiverId,
+      entityId: conversationId,
+      extraData: {
+        conversation: JSON.stringify(conversationObj),
+        senderId: String(senderId),
+        messageId: String(messageId),
+      }
+    });
+    } catch (err) {
+      strapi.log.error('FCM notify error:', err.message || err);
+    }
+  });
 
       socket.on('disconnect', () => {
         // handle disconnect nếu cần
