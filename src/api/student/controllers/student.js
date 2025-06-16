@@ -51,4 +51,29 @@ module.exports = createCoreController('api::student.student', ({ strapi }) => ({
       message: 'OK',
     };
   },
+    async findOne(ctx) {
+    const { id } = ctx.params;
+    // Lấy dữ liệu student, populate user
+    const entity = await strapi.entityService.findOne('api::student.student', id, {
+      populate: { user: true }
+    });
+    if (!entity) return ctx.notFound();
+
+    // Trả về dạng phẳng
+    ctx.body = {
+      id: entity.id,
+      ...entity,
+      user: entity.user
+        ? {
+            id: entity.user.id,
+            username: entity.user.username,
+            fcmToken: entity.user.fcmToken,
+            email: entity.user.email,
+            photoUrl: entity.user.photoUrl,
+            address: entity.user.address,
+            // thêm các trường khác nếu cần
+          }
+        : null,
+    };
+  }
 }));
