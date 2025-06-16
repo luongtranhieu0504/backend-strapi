@@ -66,7 +66,7 @@ module.exports = createCoreController('api::student.student', ({ strapi }) => ({
       user: entity.user
         ? {
             id: entity.user.id,
-            username: entity.user.name,
+            name: entity.user.name,
             fcmToken: entity.user.fcmToken,
             email: entity.user.email,
             photoUrl: entity.user.photoUrl,
