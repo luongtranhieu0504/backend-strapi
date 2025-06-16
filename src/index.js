@@ -86,16 +86,19 @@ module.exports = {
           console.log('Receiver fetched from DB:', receiver);
 
           if (receiver?.fcmToken) {
-            await sendFCMNotification(
-              receiver.fcmToken,
-              message.sender?.name || 'Tin nhắn mới',
-              message.content || 'Bạn có tin nhắn mới',
-              {
-                senderId: String(message.sender?.id),
-                conversation: message.conversation, // truyền object conversation
-                type: message.type || 'text',
+            await strapi.service('api::notification.notification').send({
+              type: 'chat',
+              title: senderName,
+              content: messageContent,
+              fromUserId: senderId,
+              toUserId: receiverId,
+              entityId: conversationId,
+              extraData: {
+                conversation: JSON.stringify(conversationObj), 
+                senderId: String(senderId),
+                messageId: String(messageId),
               }
-            );
+            });
           } else {
             console.warn('⚠️ Receiver has no fcmToken, notification skipped');
           }
@@ -143,21 +146,29 @@ module.exports = {
             // Nếu giờ nhắc còn ở tương lai (tránh gửi lại nếu đã quá giờ)
             if (remindDate > new Date()) {
               // Gọi Cloud Function để gửi notify
-              await axios.post('https://us-central1-tutorconnect-1afc7.cloudfunctions.net/remindSchedule', {
-                scheduleId: schedule.id,
-                topic: schedule.topic,
-                address: schedule.address,
-                startDate: todayStr + 'T' + slot.start_time,
-                slot,
-                tutor: {
-                  id: schedule.tutor?.id,
-                  name: schedule.tutor?.user?.name,
-                  fcmToken: schedule.tutor?.user?.fcmToken,
-                },
-                student: {
-                  id: schedule.student?.id,
-                  name: schedule.student?.user?.name,
-                  fcmToken: schedule.student?.user?.fcmToken,
+              await strapi.service('api::notification.notification').send({
+                type: 'reminder',
+                title: 'Nhắc lịch học',
+                content: `Bạn có lịch học môn "${schedule.topic}" tại ${schedule.address} vào lúc ${todayStr} ${slot.start_time} với gia sư ${schedule.tutor?.user?.name}.`,
+                fromUserId: systemId,
+                toUserId: studentId,
+                entityId: schedule.id,
+                extraData: {
+                  scheduleId: schedule.id,
+                  topic: schedule.topic,
+                  address: schedule.address,
+                  startDate: todayStr + 'T' + slot.start_time,
+                  slot,
+                  tutor: {
+                    id: schedule.tutor?.id,
+                    name: schedule.tutor?.user?.name,
+                    fcmToken: schedule.tutor?.user?.fcmToken,
+                  },
+                  student: {
+                    id: schedule.student?.id,
+                    name: schedule.student?.user?.name,
+                    fcmToken: schedule.student?.user?.fcmToken,
+                  }
                 }
               });
             }
