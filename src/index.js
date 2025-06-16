@@ -42,6 +42,7 @@ module.exports = {
   bootstrap({ strapi }) {
     const httpServer = strapi.server.httpServer;
     const { Server } = require('socket.io');
+    const cron = require('node-cron');
     const io = new Server(httpServer, {
       cors: {
         origin: '*',
@@ -108,7 +109,63 @@ module.exports = {
         console.log(`User ${socket.id} disconnected`);
       });
     });
-
     strapi.log.info('Socket.IO server started!');
+
+    cron.schedule('0 0 * * *', async () => {
+      const today = new Date();
+      const todayWeekday = today.getDay(); // 0=CN, 1=Thứ 2, ..., 6=Thứ 7
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+
+      // Lấy các schedule còn hiệu lực
+      const schedules = await strapi.entityService.findMany('api::schedule.schedule', {
+        filters: {
+          status: 'approved',
+          start_date: { $lte: todayStr }
+        },
+        populate: {
+          tutor: { populate: { user: true } },
+          student: { populate: { user: true } },
+          slots: true,
+        }
+      });
+
+      for (const schedule of schedules) {
+        for (const slot of schedule.slots) {
+          if (slot.weekday === todayWeekday) {
+            // Tính giờ nhắc (trước start_time 30 phút)
+            const [hour, minute] = slot.start_time.split(':').map(Number);
+            const remindDate = new Date(today);
+            remindDate.setHours(hour, minute - 30, 0, 0);
+
+            // Nếu giờ nhắc còn ở tương lai (tránh gửi lại nếu đã quá giờ)
+            if (remindDate > new Date()) {
+              // Gọi Cloud Function để gửi notify
+              await axios.post('https://us-central1-tutorconnect-1afc7.cloudfunctions.net/remindSchedule', {
+                scheduleId: schedule.id,
+                topic: schedule.topic,
+                address: schedule.address,
+                startDate: todayStr + 'T' + slot.start_time,
+                slot,
+                tutor: {
+                  id: schedule.tutor?.id,
+                  name: schedule.tutor?.user?.name,
+                  fcmToken: schedule.tutor?.user?.fcmToken,
+                },
+                student: {
+                  id: schedule.student?.id,
+                  name: schedule.student?.user?.name,
+                  fcmToken: schedule.student?.user?.fcmToken,
+                }
+              });
+            }
+          }
+        }
+      }
+      strapi.log.info(`[CRON] Đã gửi nhắc lịch học cho các buổi học hôm nay`);
+    });
   },
+
 };
