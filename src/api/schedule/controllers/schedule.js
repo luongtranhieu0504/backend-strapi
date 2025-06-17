@@ -124,7 +124,10 @@ module.exports = createCoreController('api::schedule.schedule', ({ strapi }) => 
       });
     }
 
-    return response;
+    ctx.body = {
+      id: fullSchedule.id,
+      ...fullSchedule,
+    };
   },
 
 }));
