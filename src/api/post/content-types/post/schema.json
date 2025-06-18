@@ -15,8 +15,7 @@
       "type": "richtext"
     },
     "imageUrls": {
-      "type": "string",
-      "required": false
+      "type": "json"
     },
     "author": {
       "type": "relation",
@@ -36,6 +35,11 @@
     "comment_count": {
       "type": "integer",
       "default": 0
+    },
+    "created_at": {
+      "type": "timestamp",
+      "autoPopulate": true,
+      "autoTime": true
     },
     "comments": {
       "type": "relation",

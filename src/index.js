@@ -135,7 +135,9 @@ module.exports = {
 
       for (const schedule of schedules) {
         for (const slot of schedule.slots) {
-          if (slot.weekday === todayWeekday) {
+          if (slot.weekday === todayWeekday && 
+            new Date(todayStr) >= new Date(schedule.start_date)
+          ) {
             // Tính giờ nhắc (trước start_time 30 phút)
             const [hour, minute] = slot.start_time.split(':').map(Number);
             const remindDate = new Date(today);
