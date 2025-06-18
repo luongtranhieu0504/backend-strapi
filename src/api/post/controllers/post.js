@@ -47,6 +47,7 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => ({
             email: post.attributes.author.data.attributes.email,
             name: post.attributes.author.data.attributes.name,
             photoUrl: post.attributes.author.data.attributes.photoUrl,
+            typeRole: post.attributes.author.data.attributes.type_role,
           }
         : null,
       liked_by: post.attributes.liked_by?.data
