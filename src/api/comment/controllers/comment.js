@@ -41,24 +41,32 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
     };
   },
   async create(ctx) {
+    // Tạo comment như bình thường
     const response = await super.create(ctx);
     const { id, attributes } = response.data;
-    let author = null;
-    if (attributes.author?.data) {
-      author = {
-        id: attributes.author.data.id,
-        name: attributes.author.data.attributes.name,
-        email: attributes.author.data.attributes.email,
-        photoUrl: attributes.author.data.attributes.photoUrl,
-        type_role: attributes.author.data.attributes.type_role,
-      };
+
+    // Lấy postId từ body
+    const postId = ctx.request.body.data?.post;
+
+    if (postId) {
+      // Lấy post hiện tại
+      const post = await strapi.entityService.findOne('api::post.post', postId);
+
+      if (post) {
+        // Tăng comment_count lên 1
+        await strapi.entityService.update('api::post.post', postId, {
+          data: {
+            comment_count: (post.comment_count || 0) + 1,
+          },
+        });
+      }
     }
+    // Flatten dữ liệu trả về
     return {
       status: 'success',
       data: {
         id,
         ...attributes,
-        author,
       },
       message: 'OK',
     };
