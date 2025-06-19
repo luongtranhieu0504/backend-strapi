@@ -66,23 +66,11 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
   async update(ctx) {
     const response = await super.update(ctx);
     const { id, attributes } = response.data;
-
-    // Nếu có populate author thì flatten luôn
-    let author = null;
-    if (attributes.author?.data) {
-      author = {
-        id: attributes.author.data.id,
-        username: attributes.author.data.attributes.username,
-        name: attributes.author.data.attributes.name,
-      };
-    }
-
     return {
       status: 'success',
       data: {
         id,
         ...attributes,
-        author,
       },
       message: 'OK',
     };
