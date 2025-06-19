@@ -11,29 +11,28 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "student": {
+    "content": {
+      "type": "text"
+    },
+    "imageUrls": {
+      "type": "json"
+    },
+    "post": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::student.student",
-      "inversedBy": "conversations"
+      "relation": "manyToOne",
+      "target": "api::post.post",
+      "inversedBy": "comments"
     },
-    "tutor": {
+    "author": {
       "type": "relation",
-      "relation": "oneToOne",
-      "target": "api::tutor.tutor",
-      "inversedBy": "conversations"
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "comments"
     },
-    "messages": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::message.message",
-      "mappedBy": "conversation"
-    },
-    "lastMessage": {
-      "type": "string"
-    },
-    "lastTimestamp": {
-      "type": "datetime"
+    "created_at": {
+      "type": "timestamp",
+      "autoPopulate": true,
+      "autoTime": true
     }
   }
 }
