@@ -40,4 +40,27 @@ module.exports = createCoreController('api::comment.comment', ({ strapi }) => ({
       message: 'OK',
     };
   },
+  async create(ctx) {
+    const response = await super.create(ctx);
+    const { id, attributes } = response.data;
+    let author = null;
+    if (attributes.author?.data) {
+      author = {
+        id: attributes.author.data.id,
+        name: attributes.author.data.attributes.name,
+        email: attributes.author.data.attributes.email,
+        photoUrl: attributes.author.data.attributes.photoUrl,
+        type_role: attributes.author.data.attributes.type_role,
+      };
+    }
+    return {
+      status: 'success',
+      data: {
+        id,
+        ...attributes,
+        author,
+      },
+      message: 'OK',
+    };
+  },
 }));
