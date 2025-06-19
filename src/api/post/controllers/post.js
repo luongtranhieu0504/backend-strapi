@@ -67,4 +67,21 @@ module.exports = createCoreController('api::post.post', ({ strapi }) => ({
       message: 'OK',
     };
   },
+  async update(ctx) {
+    // Gọi hàm update gốc
+    const response = await super.update(ctx);
+
+    // Lấy data gốc
+    const { id, attributes } = response.data;
+
+    // Trả về dữ liệu phẳng
+    return {
+      status: 'success',
+      data: {
+        id,
+        ...attributes,
+      },
+      message: 'OK',
+    };
+  },
 }));
