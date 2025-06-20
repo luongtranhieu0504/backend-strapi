@@ -82,4 +82,34 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
     }
     return tutor;
   },
+  async findOne(ctx) {
+    // Gọi super để lấy đủ dữ liệu tutor (có populate user)
+    const response = await super.findOne(ctx);
+
+    if (!response?.data) {
+      return ctx.notFound('Tutor not found');
+    }
+
+    // Flatten trường user
+    const tutor = response.data;
+    const user = tutor.attributes.user?.data;
+
+    return {
+      status: 'success',
+      data: {
+        id: tutor.id,
+        ...tutor.attributes,
+        user: user
+          ? {
+              id: user.id,
+              name: user.attributes.name,
+              email: user.attributes.email,
+              photoUrl: user.attributes.photoUrl,
+              type_role: user.attributes.type_role,
+            }
+          : null,
+      },
+      message: 'OK',
+    };
+  },
 }));
