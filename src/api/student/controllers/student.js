@@ -12,14 +12,37 @@ module.exports = createCoreController('api::student.student', ({ strapi }) => ({
     if (!user) {
       return ctx.unauthorized('You must be logged in');
     }
+    // Populate cả user và favorites
     const student = await strapi.db.query('api::student.student').findOne({
       where: { user: user.id },
-      populate: ['user'],
+      populate: ['user', 'favorites'],
     });
     if (!student) {
       return ctx.notFound('Student not found');
     }
-    return student;
+
+    // Flatten favorites (chỉ lấy id, hoặc lấy thêm các trường khác nếu muốn)
+    return {
+      id: student.id,
+      ...student,
+      user: student.user
+        ? {
+            id: student.user.id,
+            name: student.user.name,
+            fcmToken: student.user.fcmToken,
+            email: student.user.email,
+            photoUrl: student.user.photoUrl,
+            address: student.user.address,
+          }
+        : null,
+      favorites: Array.isArray(student.favorites)
+        ? student.favorites.map(tutor => ({
+            id: tutor.id,
+            name: tutor.name,
+            // thêm các trường khác nếu muốn
+          }))
+        : [],
+    };
   },
 
   async updateFavorites(ctx) {
