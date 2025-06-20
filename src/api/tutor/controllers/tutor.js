@@ -83,7 +83,14 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
     return tutor;
   },
   async findOne(ctx) {
-    // Gọi super để lấy đủ dữ liệu tutor (có populate user)
+    // Ép populate user
+    ctx.query = {
+      ...ctx.query,
+      populate: {
+        user: true,
+      },
+    };
+
     const response = await super.findOne(ctx);
 
     if (!response?.data) {
