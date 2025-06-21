@@ -75,7 +75,7 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
     }
     const tutor = await strapi.db.query('api::tutor.tutor').findOne({
       where: { user: user.id },
-      populate: ['user'],
+      populate: ['user', 'availability', 'certifications'],
     });
     if (!tutor) {
       return ctx.notFound('Tutor not found');
@@ -96,7 +96,6 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
     if (!response?.data) {
       return ctx.notFound('Tutor not found');
     }
-
     // Flatten trường user
     const tutor = response.data;
     const user = tutor.attributes.user?.data;
