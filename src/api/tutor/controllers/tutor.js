@@ -24,7 +24,6 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
       return {
         id: tutor.id,
         subjects: tutor.subjects,
-        degrees: tutor.degrees,
         experienceYears: tutor.experienceYears,
         pricePerHour: tutor.pricePerHour,
         rating: tutor.rating,
@@ -50,7 +49,6 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
               grade: user.grade,
               phone: user.phone,
               photoUrl: user.photoUrl,
-              bio: user.bio,
               address: user.address,
               state: user.state,
               type_role: user.type_role,
