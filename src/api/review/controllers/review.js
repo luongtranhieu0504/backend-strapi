@@ -14,22 +14,26 @@ module.exports = createCoreController('api::review.review', ({ strapi }) => ({
       return (ctx.body = { status: 'error', data: null, message: 'Missing tutorId' });
     }
 
-    // Lấy tất cả review của tutor, populate student
+    // Lấy tất cả review của tutor, populate student và user của student
     const reviews = await strapi.entityService.findMany('api::review.review', {
       filters: { tutor: tutorId },
-      populate: { student: { fields: ['name'] } },
+      populate: { 
+        student: { 
+          populate: { user: { fields: ['name'] } }
+        }
+      },
       sort: ['date:desc'],
     });
 
-    // Trả về dạng phẳng, chỉ lấy name của student
+    // Trả về dạng phẳng, chỉ lấy name của student từ student.user
     const flatReviews = reviews.map((review) => ({
       id: review.id,
       rating: review.rating,
       comment: review.comment,
       date: review.date,
-      student: review.student.id,
+      student: review.student?.id,
       tutor: parseInt(tutorId, 10),
-      student_name: review.student_name,
+      student_name: review.student?.user?.name || null,
     }));
 
     ctx.body = {
@@ -37,5 +41,5 @@ module.exports = createCoreController('api::review.review', ({ strapi }) => ({
       data: flatReviews,
       message: 'OK',
     };
-  },
+  }
 }));
