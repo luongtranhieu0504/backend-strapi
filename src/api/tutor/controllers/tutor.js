@@ -23,7 +23,6 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
       const user = tutor.user;
       return {
         id: tutor.id,
-        uid: tutor.uid,
         subjects: tutor.subjects,
         degrees: tutor.degrees,
         experienceYears: tutor.experienceYears,

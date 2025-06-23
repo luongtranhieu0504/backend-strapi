@@ -85,9 +85,6 @@
       "type": "string",
       "required": false
     },
-    "bio": {
-      "type": "richtext"
-    },
     "address": {
       "type": "text"
     },

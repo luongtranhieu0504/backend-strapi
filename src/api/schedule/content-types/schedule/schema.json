@@ -39,8 +39,19 @@
     },
     "status": {
       "type": "enumeration",
-      "enum": ["pending", "cancelled", "approved", "completed"],
+      "enum": [
+        "pending",
+        "cancelled",
+        "approved",
+        "completed"
+      ],
       "default": "pending"
+    },
+    "students": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::student.student",
+      "inversedBy": "learning_history"
     }
-  } 
+  }
 }

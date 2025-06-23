@@ -13,13 +13,13 @@
   "attributes": {
     "student": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "api::student.student",
       "inversedBy": "conversations"
     },
     "tutor": {
       "type": "relation",
-      "relation": "oneToOne",
+      "relation": "manyToOne",
       "target": "api::tutor.tutor",
       "inversedBy": "conversations"
     },
