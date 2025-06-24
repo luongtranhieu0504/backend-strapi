@@ -115,4 +115,40 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
       message: 'OK',
     };
   },
+
+  async find(ctx) {
+    // Ép populate user
+    ctx.query = {
+      ...ctx.query,
+      populate: {
+        user: true,
+      },
+    };
+
+    const response = await super.find(ctx);
+    // Flatten user cho từng tutor
+    const flatData = response.data.map(tutor => {
+      const user = tutor.attributes.user?.data;
+      return {
+        id: tutor.id,
+        ...tutor.attributes,
+        user: user
+          ? {
+              id: user.id,
+              name: user.attributes.name,
+              email: user.attributes.email,
+              photoUrl: user.attributes.photoUrl,
+              type_role: user.attributes.type_role,
+            }
+          : null,
+      };
+    });
+
+    return {
+      status: 'success',
+      data: flatData,
+      meta: response.meta,
+      message: 'OK',
+    };
+  }
 }));
