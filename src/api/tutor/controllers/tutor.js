@@ -8,6 +8,10 @@ const { createCoreController } = require('@strapi/strapi').factories;
 
 module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
   async flattened(ctx) {
+    // Lấy subject filter từ query (?subject=Toán)
+    const subject = ctx.query.subject;
+
+    // Lấy tất cả tutors, populate các trường cần thiết
     const tutors = await strapi.entityService.findMany('api::tutor.tutor', {
       populate: {
         user: true,
@@ -19,7 +23,8 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
       },
     });
 
-    const flattenTutor = (tutor) => {
+    // Flatten dữ liệu tutor
+    let flatTutors = tutors.map((tutor) => {
       const user = tutor.user;
       return {
         id: tutor.id,
@@ -30,13 +35,11 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
         createdAt: tutor.createdAt,
         updatedAt: tutor.updatedAt,
         publishedAt: tutor.publishedAt,
-
         schedules: Array.isArray(tutor.schedules) ? tutor.schedules : [],
         reviews: Array.isArray(tutor.reviews) ? tutor.reviews : [],
         conversations: Array.isArray(tutor.conversations) ? tutor.conversations : [],
         availability: Array.isArray(tutor.availability) ? tutor.availability : [],
         certifications: Array.isArray(tutor.certifications) ? tutor.certifications : [],
-
         user: user
           ? {
               id: user.id,
@@ -57,11 +60,16 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
             }
           : null,
       };
-    };
-
+    });
+    // Nếu có subject, filter theo subject trong mảng subjects
+    if (subject) {
+      flatTutors = flatTutors.filter(
+        tutor => Array.isArray(tutor.subjects) && tutor.subjects.includes(subject)
+      );
+    }
     ctx.body = {
       status: 'success',
-      data: tutors.map(flattenTutor),
+      data: flatTutors,
       message: 'OK',
     };
   },
