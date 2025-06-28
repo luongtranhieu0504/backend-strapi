@@ -116,7 +116,6 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
   },
 
   async find(ctx) {
-    // Lấy subject filter từ query
     const subject = ctx.query['filters']?.subjects?.$contains || ctx.query.subject;
 
     // Ép populate user
@@ -124,8 +123,9 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
       ...ctx.query,
       populate: {
         user: true,
+        availability: true,
+        certifications: true,
       },
-      // Xóa filter subjects để tránh lỗi SQL
     };
     delete ctx.query.filters;
 
