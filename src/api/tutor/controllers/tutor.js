@@ -145,6 +145,7 @@ module.exports = createCoreController('api::tutor.tutor', ({ strapi }) => ({
               email: user.attributes.email,
               photoUrl: user.attributes.photoUrl,
               type_role: user.attributes.type_role,
+              address: user.attributes.address,
             }
           : null,
       };
