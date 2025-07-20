@@ -28,11 +28,6 @@
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "comments"
-    },
-    "created_at": {
-      "type": "timestamp",
-      "autoPopulate": true,
-      "autoTime": true
     }
   }
 }
